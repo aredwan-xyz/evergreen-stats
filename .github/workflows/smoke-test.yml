@@ -1,0 +1,19 @@
+name: Smoke test
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          user: aredwan-xyz
+          out: ./test-output
+          theme: dark
+      - run: |
+          test -s ./test-output/stats.svg
+          test -s ./test-output/languages.svg
+          echo "Both SVGs generated successfully:"
+          ls -la ./test-output/
