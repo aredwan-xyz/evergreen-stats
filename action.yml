@@ -1,0 +1,52 @@
+name: "Evergreen Stats"
+description: "Self-hosted GitHub profile stat cards — no external rendering service, never 503s."
+author: "aredwan-xyz"
+branding:
+  icon: "bar-chart-2"
+  color: "green"
+
+inputs:
+  user:
+    description: "GitHub username to generate cards for"
+    required: true
+  out:
+    description: "Output directory for the generated SVGs"
+    required: false
+    default: "./assets"
+  theme:
+    description: "Built-in theme: dark or light"
+    required: false
+    default: "dark"
+  bg_color:
+    description: "Override background color (hex)"
+    required: false
+    default: ""
+  title_color:
+    description: "Override title/accent color (hex)"
+    required: false
+    default: ""
+  text_color:
+    description: "Override body text color (hex)"
+    required: false
+    default: ""
+  border_color:
+    description: "Override border color (hex)"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Generate stat cards
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        python3 "${{ github.action_path }}/scripts/generate.py" \
+          --user "${{ inputs.user }}" \
+          --out "${{ inputs.out }}" \
+          --theme "${{ inputs.theme }}" \
+          ${{ inputs.bg_color != '' && format('--bg-color {0}', inputs.bg_color) || '' }} \
+          ${{ inputs.title_color != '' && format('--title-color {0}', inputs.title_color) || '' }} \
+          ${{ inputs.text_color != '' && format('--text-color {0}', inputs.text_color) || '' }} \
+          ${{ inputs.border_color != '' && format('--border-color {0}', inputs.border_color) || '' }}
