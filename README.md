@@ -1,16 +1,15 @@
 # 🌲 Evergreen Stats
 
-**GitHub profile stat cards that don't 503.**
+**Generate GitHub profile stat cards as static SVG files.**
 
-The popular stats-card services render your cards on someone else's shared server. When that
-server gets rate-limited or overloaded, your profile README shows a broken image to everyone who
-visits it — not a hypothetical: at the time of writing, both `github-readme-stats.vercel.app` and
-`github-profile-trophy.vercel.app` are returning `503`/`402` errors on plain, unauthenticated
-requests.
+Hosted stats-card services render images on a shared server. Rate limits or outages at that
+service can affect the images displayed in a profile README.
 
 Evergreen Stats generates the same kind of card, but **inside your own GitHub Action run**, as a
-plain SVG file committed straight to your repo. There's no server to go down, because there is no
-server. Just the GitHub API and some Python that ships with every runner.
+plain SVG file committed straight to your repo. This removes an external rendering server
+from the page-load path. Generation still depends on GitHub API access and a successful
+Action run; displaying the saved image depends on GitHub's file hosting. Failed generation
+can leave an older card visible, so check the workflow timestamp when freshness matters.
 
 <p align="center">
   <img src="examples/stats.svg" width="420" alt="Example stats card">
@@ -23,9 +22,9 @@ server. Just the GitHub API and some Python that ships with every runner.
 | | Third-party render services | Evergreen Stats |
 |---|:-:|:-:|
 | Where it renders | Their server, every page load | Your Action run, once per schedule |
-| Can it 503 on your visitors? | Yes — happens regularly under load | No — it's a static file |
+| Rendering dependency at page load | External rendering server | GitHub's static file hosting |
 | Rate limits | Shared across every user of the service | Your own `GITHUB_TOKEN` (5,000 req/hr) |
-| Dependencies | A live external service | None |
+| Generation dependencies | Rendering service and GitHub API | GitHub API, Actions runner and Python |
 
 This isn't a criticism of those projects — they're popular *because* they're good, and popularity
 is exactly what breaks a shared render server. Evergreen Stats sidesteps the problem entirely by
@@ -96,7 +95,8 @@ canvas library, no image-rendering service.
 ## Status
 
 v1. Intentionally minimal and reliable over feature-complete — more card types (streak, activity
-graph) are a natural next step, but every metric that ships here is one that can't silently break.
+graph) are possible next steps. API or workflow failures can leave saved metrics stale; inspect
+the Action run before treating a card as current.
 Issues and PRs welcome.
 
 ## License
